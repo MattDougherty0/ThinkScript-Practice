@@ -1,0 +1,160 @@
+# by linus on the ThinkScript Lounge
+#: Multiple instruments comparison
+## Method used = NormalizedSymbols
+## linus, 2014-03-16, v0.3
+# Change History:
+# 2014-03-16, v0.3, linus - Added inputs use1..use10.
+# 2014-03-14, v0.2, linus - Added symbol key.
+# 2014-03-14, v0.1, linus - Original version.
+#hint: Normalize plots for various symbols and start ploting the symbols at 0 % value.
+
+declare lower;
+
+#hint showKey: OFF hides the symbol key, NUM numbers the symbol text, TXT shows just the symbol text.
+input showKey = {OFF, NUM, default TXT};
+#hint price: Changes the fundamental price type.
+input price = FundamentalType.CLOSE;
+#The following symbols may be changed to your preference but none should be blank. You may turn off any of these via the 'input use? = ' function. Each symbol is implied-numbered from 1 to 10, top-to-bottom sequentially.
+input symbol1 = "SPY";
+input symbol2 = "QQQ";
+input symbol3 = "IWM";
+input symbol4 = "DIA";
+input symbol5 = "AAPL";
+input symbol6 = "FCX";
+input symbol7 = "GOOG";
+input symbol8 = "IBM";
+input symbol9 = "JPM";
+input symbol10 = "XOM";
+
+#hint use1: use1 to use10 toggle display of their respective symbol.
+input use1 = Yes;
+input use2 = Yes;
+input use3 = Yes;
+input use4 = Yes;
+input use5 = Yes;
+input use6 = Yes;
+input use7 = Yes;
+input use8 = Yes;
+input use9 = Yes;
+input use10 = Yes;
+# changing the Min and Max values will determine the minimum and maximum plotted values for all symbols.
+
+script normalize {
+  input data = close;
+  input Min = -10000;
+  input Max = 10000;
+  
+  def ha = HighestAll( data );
+  def la = LowestAll( data );
+  plot normalize = (((Max-Min) * (data-la)) / (ha-la)) + Min;
+}
+
+def s1 = if use1 then Fundamental(price, symbol1) else Double.NaN;
+def s2 = if use2 then Fundamental(price, symbol2) else Double.NaN;
+def s3 = if use3 then Fundamental(price, symbol3) else Double.NaN;
+def s4 = if use4 then Fundamental(price, symbol4) else Double.NaN;
+def s5 = if use5 then Fundamental(price, symbol5) else Double.NaN;
+def s6 = if use6 then Fundamental(price, symbol6) else Double.NaN;
+def s7 = if use7 then Fundamental(price, symbol7) else Double.NaN;
+def s8 = if use8 then Fundamental(price, symbol8) else Double.NaN;
+def s9 = if use9 then Fundamental(price, symbol9) else Double.NaN;
+def s10 = if use10 then Fundamental(price, symbol10) else Double.NaN;
+
+def r1 = compoundValue(1, if !isNaN(s1) then normalize(s1) else r1[1], Double.NaN);
+def r2 = compoundValue(1, if !isNaN(s2) then normalize(s2) else r2[1], Double.NaN);
+def r3 = compoundValue(1, if !isNaN(s3) then normalize(s3) else r3[1], Double.NaN);
+def r4 = compoundValue(1, if !isNaN(s4) then normalize(s4) else r4[1], Double.NaN);
+def r5 = compoundValue(1, if !isNaN(s5) then normalize(s5) else r5[1], Double.NaN);
+def r6 = compoundValue(1, if !isNaN(s6) then normalize(s6) else r6[1], Double.NaN);
+def r7 = compoundValue(1, if !isNaN(s7) then normalize(s7) else r7[1], Double.NaN);
+def r8 = compoundValue(1, if !isNaN(s8) then normalize(s8) else r8[1], Double.NaN);
+def r9 = compoundValue(1, if !isNaN(s9) then normalize(s9) else r9[1], Double.NaN);
+def r10 = compoundValue(1, if !isNaN(s10) then normalize(s10) else r10[1], Double.NaN);
+
+# States: 0 = Not initialized, 1 = Initialized.
+def st = {default "0", "1"};
+# Offsets:
+def ofst1;
+def ofst2;
+def ofst3;
+def ofst4;
+def ofst5;
+def ofst6;
+def ofst7;
+def ofst8;
+def ofst9;
+def ofst10;
+
+if st[1] == st."0" {
+  if (!use1 or !isNaN(r1)) and (!use2 or !isNaN(r2))
+  and (!use3 or !isNaN(r3)) and (!use4 or !isNaN(r4))
+  and (!use5 or !isNaN(r5)) and (!use6 or !isNaN(r6))
+  and (!use7 or !isNaN(r7)) and (!use8 or !isNaN(r8))
+  and (!use9 or !isNaN(r9)) and (!use10 or !isNaN(r10))
+  {
+    ofst1 = r1;
+    ofst2 = r2;
+    ofst3 = r3;
+    ofst4 = r4;
+    ofst5 = r5;
+    ofst6 = r6;
+    ofst7 = r7;
+    ofst8 = r8;
+    ofst9 = r9;
+    ofst10 = r10;
+    st = st."1";
+  } else {
+    # Not initialized.
+    ofst1 = Double.NaN;
+    ofst2 = Double.NaN;
+    ofst3 = Double.NaN;
+    ofst4 = Double.NaN;
+    ofst5 = Double.NaN;
+    ofst6 = Double.NaN;
+    ofst7 = Double.NaN;
+    ofst8 = Double.NaN;
+    ofst9 = Double.NaN;
+    ofst10 = Double.NaN;
+    st = st[1];
+  }
+} else {
+  ofst1 = ofst1[1];
+  ofst2 = ofst2[1];
+  ofst3 = ofst3[1];
+  ofst4 = ofst4[1];
+  ofst5 = ofst5[1];
+  ofst6 = ofst6[1];
+  ofst7 = ofst7[1];
+  ofst8 = ofst8[1];
+  ofst9 = ofst9[1];
+  ofst10 = ofst10[1];
+  st = st[1];
+}
+
+def ok = !isNaN(close) and st == st."1";
+plot p1 = if ok then r1 - ofst1 else Double.NaN;
+plot p2 = if ok then r2 - ofst2 else Double.NaN;
+plot p3 = if ok then r3 - ofst3 else Double.NaN;
+plot p4 = if ok then r4 - ofst4 else Double.NaN;
+plot p5 = if ok then r5 - ofst5 else Double.NaN;
+plot p6 = if ok then r6 - ofst6 else Double.NaN;
+plot p7 = if ok then r7 - ofst7 else Double.NaN;
+plot p8 = if ok then r8 - ofst8 else Double.NaN;
+plot p9 = if ok then r9 - ofst9 else Double.NaN;
+plot p10 = if ok then r10 - ofst10 else Double.NaN;
+
+plot Zero = 0;
+Zero.SetDefaultColor(Color.GRAY);
+
+def n = showKey == showKey.NUM;
+
+AddLabel(showKey and use1, (if n then "1. " else "") + symbol1, p1.TakeValueColor());
+AddLabel(showKey and use2, (if n then "2. " else "") + symbol2, p2.TakeValueColor());
+AddLabel(showKey and use3, (if n then "3. " else "") + symbol3, p3.TakeValueColor());
+AddLabel(showKey and use4, (if n then "4. " else "") + symbol4, p4.TakeValueColor());
+AddLabel(showKey and use5, (if n then "5. " else "") + symbol5, p5.TakeValueColor());
+AddLabel(showKey and use6, (if n then "6. " else "") + symbol6, p6.TakeValueColor());
+AddLabel(showKey and use7, (if n then "7. " else "") + symbol7, p7.TakeValueColor());
+AddLabel(showKey and use8, (if n then "8. " else "") + symbol8, p8.TakeValueColor());
+AddLabel(showKey and use9, (if n then "9. " else "") + symbol9, p9.TakeValueColor());
+AddLabel(showKey and use10, (if n then "10. " else "") + symbol10, p10.TakeValueColor());
