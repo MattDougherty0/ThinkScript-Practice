@@ -1,0 +1,10 @@
+Template For Strategies
+
+input tradeSize = 100;
+
+def signal = 0;
+addOrder(OrderType.BUY_TO_OPEN, signal, open[-1], tradeSize, Color.CYAN, Color.CYAN);
+
+def exit = 0;
+
+addOrder(OrderType.BUY_TO_CLOSE, exit, open[-1], tradeSize, Color.MAGENTA, Color.MAGENTA);
