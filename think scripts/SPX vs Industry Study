@@ -1,0 +1,150 @@
+#S&P 500 sectors Relative to SPX
+#Hint:<b> Plots the %-change-of-the S&P 500's nine sectors.</b><li>To highlight a sector of interest, change its weight in 'Edit Studies' and/or define a 'CloudSymbol' to show its cloud referenced to zero.</li><li> The color of the plots match the color of the labels and bubbles.</li><li> Labels and Bubbles may be toggled on/off. </li><li><b>'Chart Settings/Time Axis/Expansion Area' is set to '40 bars to the right'</b> to provide bubble space. </li><li>This plots many aggs down to minutes but 'Day' agg time chart is most meaningful. <li> Changing of the input symbols is <b>not recommended</b> but, if done, the symbol will be plotted but its ID characteristics will be wrong. For example, if  QQQ was inputted where XLY was shown, QQQ will be plotted but it will incorrectly be labeled a 'cyclicals' and QQQ will not appear in the cloud selection list.</li> <li>You can enhance chart reading by expanding the vertical height or plotting alone.</li>
+
+declare lower;
+
+#======= List all of the S&P 500 sectors =========
+input price = FundamentalType.CLOSE;
+input symbol1 = "SPX";#hint symbol1:Normally this is the SPX.
+input symbol2 = "XLY";#hint symbol2:Normally this is the SPX's XLY
+input symbol3 = "XLK";#hint symbol3:Normally this is the SPX's XLK
+input symbol4 = "XLI";#hint symbol4:Normally this is the SPX's XLI
+input symbol5 = "XLB";#hint symbol5:Normally this is the SPX's XLB
+input symbol6 = "XLE";#hint symbol6:Normally this is the SPX's XLE
+input symbol7 = "XLP";#hint symbol7:Normally this is the SPX's XLP
+input symbol8 = "XLV";#hint symbol8:Normally this is the SPX's XLV
+input symbol9 = "XLU";#hint symbol9:Normally this is the SPX's XLU
+input symbol10 = "XLF";#hint symbol10:Normally this is the SPX's XLF
+input CloudSymbol = {default SPX, XLY, XLK, XLI, XLB, XLE, XLP, XLV, XLU, XLF};#hint CloudSymbol:Select the sector to show the Sector cloud referenced to SPX = Zero. If no cloud is desired, select SPX.
+
+#===== Define first bar values ============
+def close1 = First(close(symbol1));
+#AddLabel(1, "close1 = first(close(SPY)) = " + close1, Color.PINK);#For debugging
+def close2 = First(close(symbol2 ));
+def close3 = First(close(symbol3 ));
+def close4 = First(close(symbol4 ));
+def close5 = First(close(symbol5 ));
+def close6 = First(close(symbol6 ));
+def close7 = First(close(symbol7 ));
+def close8 = First(close(symbol8 ));
+def close9 = First(close(symbol9 ));
+def close10 = First(close(symbol10 ));
+
+#====== calc percents and plot related to the first bar for each sector ==========
+def  d_close1 = close(symbol1);
+plot D1_SPX = (d_close1 - close1) / close1 * 100;
+D1_SPX.SetLineWeight(3);
+
+def  d_close2 = close(symbol2);
+plot D2_XLY = ((d_close2 - close2) / close2 * 100) - D1_SPX ;
+def Line_wt2 = if (CloudSymbol == CloudSymbol.XLY , 3, 1);
+D2_XLY.SetLineWeight( Line_wt2);
+
+#addlabel(1, "Line_wt2 = " + Line_wt2, color.pink);# For debugging
+def  d_close3 = close(symbol3);
+plot D3_XLK = ((d_close3 - close3) / close3 * 100) - D1_SPX ;
+def Line_wt3 = if CloudSymbol == CloudSymbol.XLK then 3 else 1;
+D3_XLK.SetLineWeight(Line_wt3);
+
+def  d_close4 = close(symbol4);
+plot D4_XLI = ((d_close4 - close4) / close4 * 100) - D1_SPX ;
+def Line_wt4 = if CloudSymbol == CloudSymbol.XLI then 3 else 1;
+D4_XLI.SetLineWeight(Line_wt4);
+
+def  d_close5 = close(symbol5);
+plot D5_XLB = ((d_close5 - close5) / close5 * 100) - D1_SPX ;
+def Line_wt5 = if CloudSymbol == CloudSymbol.XLB then 3 else 1;
+D5_XLB.SetLineWeight(Line_wt5);
+
+def  d_close6 = close(symbol6);
+plot D6_XLE = ((d_close6 - close6) / close6 * 100) - D1_SPX ;
+def Line_wt6 = if CloudSymbol == CloudSymbol.XLE then 3 else 1;
+D6_XLE.SetLineWeight(Line_wt6);
+
+def  d_close7 = close(symbol7);
+plot D7_XLP = ((d_close7 - close7) / close7 * 100) - D1_SPX ;
+def Line_wt7 = if CloudSymbol == CloudSymbol.XLP then 3 else 1;
+D7_XLP.SetLineWeight(Line_wt7);
+
+def  d_close8 = close(symbol8);
+plot D8_XLV = ((d_close8 - close8) / close8 * 100) - D1_SPX ;
+def Line_wt8 = if CloudSymbol == CloudSymbol.XLV then 3 else 1;
+D8_XLV.SetLineWeight(Line_wt8);
+
+def  d_close9 = close(symbol9);
+plot D9_XLU = ((d_close9 - close9) / close9 * 100) - D1_SPX ;
+def Line_wt9 = if CloudSymbol == CloudSymbol.XLU then 3 else 1;
+D9_XLU.SetLineWeight(Line_wt9);
+
+def  d_close10 = close(symbol10);
+plot D10_XLF = ((d_close10 - close10) / close10 * 100) - D1_SPX ;
+def Line_wt10 = if CloudSymbol == CloudSymbol.XLF then 3 else 1;;
+D10_XLF.SetLineWeight(Line_wt10);
+
+plot D1_SPX_Zero = 0;
+D1_SPX_Zero .SetPaintingStrategy(PaintingStrategy.LINE);
+D1_SPX_Zero .SetLineWeight(3);
+D1_SPX_Zero .SetDefaultColor(Color.YELLOW);
+D1_SPX_Zero.SetStyle(Curve.LONG_DASH);
+
+#====== add ID labels ======
+input ShowLabel = Yes;#hint ShowLabel: Turns labels ON/OFF
+AddLabel(showLabel, symbol1  + " = S&P 500 SECTORS >>>>>", D1_SPX .TakeValueColor());
+AddLabel(showLabel, symbol2 + ", cyclicals", D2_XLY.TakeValueColor());
+AddLabel(showLabel, symbol3 + ", technology", D3_XLK.TakeValueColor());
+AddLabel(showLabel, symbol4 + ", industrials", D4_XLI.TakeValueColor());
+AddLabel(showLabel, symbol5 + ",materials" , D5_XLB .TakeValueColor());
+AddLabel(showLabel, symbol6 + ", energy", D6_XLE.TakeValueColor());
+AddLabel(showLabel, symbol7 + ",consumer staples" , D7_XLP.TakeValueColor());
+AddLabel(showLabel, symbol8 + ", health care", D8_XLV.TakeValueColor());
+AddLabel(showLabel, symbol9 + ", utilities", D9_XLU.TakeValueColor());
+AddLabel(showLabel, symbol10 + ", Financials", D10_XLF.TakeValueColor());
+AddLabel(showLabel, "-- -- -- = SPX zero line. Sector plots are referencec to this SPX value", Color.YELLOW);
+
+#====== Cloud label =======
+def Want_Cloud = if CloudSymbol == CloudSymbol.SPX then 1 else 0;
+AddLabel(!Want_Cloud, "The cloud is between Zero and " + CloudSymbol,  if (CloudSymbol == CloudSymbol.XLY) then
+  D2_XLY.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLK) then D3_XLK.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLI) then D4_XLI.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLB) then D5_XLB.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLE) then D6_XLE.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLP) then D7_XLP.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLV) then D8_XLV.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLU) then D9_XLU.TakeValueColor() else if
+  (CloudSymbol == CloudSymbol.XLF) then D10_XLF.TakeValueColor() else
+  Color.PINK);
+
+AddCloud(D1_SPX_Zero, if CloudSymbol == CloudSymbol.XLY then D2_XLY else if
+  CloudSymbol == CloudSymbol.XLK then D3_XLK else if
+  CloudSymbol == CloudSymbol.XLI then D4_XLI else if
+  CloudSymbol == CloudSymbol.XLB then D5_XLB else if
+  CloudSymbol == CloudSymbol.XLE then D6_XLE else if
+  CloudSymbol == CloudSymbol.XLP then D7_XLP else if
+  CloudSymbol == CloudSymbol.XLV then D8_XLV else if
+  CloudSymbol == CloudSymbol.XLU then D9_XLU else if
+  CloudSymbol == CloudSymbol.XLF then D10_XLF else if
+  CloudSymbol == CloudSymbol.SPX then D1_SPX_Zero else
+  D1_SPX_Zero,
+  Color.RED, Color.GREEN);
+
+#==== for debugging ==========
+#Plot ZeroLine = 0;
+#AddLabel(1, symbol1 + " first close = First(d_close) = " + First(d_close1), Color.PINK);
+#AddLabel(1, symbol1 + " first close = close1 = " + close1, Color.PINK);
+#AddLabel(1, "Plot Data_ Pct = " + Data_Pct1, Color.PINK);
+
+#========== Add bubbles ============
+input ShowBubbles = yes;#hint ShowBubbles: Turns bubbles ON/OFF
+def BubbleLocation =  !IsNaN(close) and IsNaN(close [-1] ) && HighestAll(BarNumber())  ;
+
+AddChartBubble(BubbleLocation , D1_SPX, symbol1 + "  by itself", D1_SPX.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D2_XLY, symbol2 + " cyclicals", D2_XLY.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D3_XLK, symbol3 + " technology", D3_XLK.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D4_XLI, symbol4 + " industrials", D4_XLI.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D5_XLB , symbol5 + " materials           ", D5_XLB.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D6_XLE, symbol6 + " energy", D6_XLE.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D7_XLP, symbol7 + " consumer staples", D7_XLP.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D8_XLV, symbol8 + " health care", D8_XLV.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D9_XLU, symbol9 + " utilities", D9_XLU.TakeValueColor());
+AddChartBubble(BubbleLocation  && ShowBubbles, D10_XLF, symbol10 + " financials", D10_XLF.TakeValueColor());
