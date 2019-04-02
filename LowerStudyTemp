@@ -1,0 +1,5 @@
+Lower Study Template
+
+declare lower;
+plot signal = 0;
+plot exit = 0;
