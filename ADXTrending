@@ -1,0 +1,29 @@
+#HINT: This study is a copy/paste of ADX with the addition of horizontal lines at 20 and 25. \n\n It also has a label that appear when ADX is less than 20, indicating the symbol is not trending or is range bound.  And a label that appears when ADX is greater than 25, indicating the symbol is now trending.
+
+
+# if you always want your custom study to sppear above or below the chart you can add declare upper;  or declare lower; to your ThinkScript code
+declare lower;
+
+
+# input creates field in the Edit Studies box to make it easy to make changes without need to alter the ThinkScript code.
+input length = 14; #HINT length: 14 is the default length because that is the number used by ADX creator J. Wells WildersAverage in his 1978 book "New Concepts in Technical Trading"
+input averageType = AverageType.WILDERS;
+input Label_Color_Choice = {default "magenta", "green", "pink", "cyan", "orange", "red", "blue", "gray", "violet"};
+
+
+# plot tells ThinkScript what information you want visible on the chart.  The next few lines tell ThinkScript how you want that data to appear.
+plot ADX = DMI(length, averageType).ADX;
+ADX.setDefaultColor(color.MAGENTA);
+
+plot trending = 25;
+trending.setDefaultColor(color.ORANGE);
+trending.setPaintingStrategy(PaintingStrategy.DASHES);
+plot RangeBound = 20;
+RangeBound.setDefaultColor(color.ORANGE);
+RangeBound.setPaintingStrategy(PaintingStrategy.DASHES);
+
+AddLabel(ADX > 25, "ADX now > 25 ... TRENDING -- use directional trading strategies", GetColor(Label_Color_Choice));
+AddLabel(ADX < 20, "ADX now < 20 ... CHOP -- use range bound trading strategies", GetColor(Label_Color_Choice));
+
+
+
