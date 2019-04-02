@@ -1,0 +1,28 @@
+SLM Ribbons Study From Hahn Tech LLC 
+
+input price = close;
+input superfast_length = 8;
+input fast_length = 13;
+input slow_length = 21;
+input displace = 0;
+def mov_avg8 = ExpAverage(price[-displace], superfast_length);
+def mov_avg13 = ExpAverage(price[-displace], fast_length);
+def mov_avg21 = ExpAverage(price[-displace], slow_length);
+#moving averages
+Plot Superfast = mov_avg8;
+plot Fast = mov_avg13;
+plot Slow = mov_avg21;
+def buy = mov_avg8 > mov_avg13 and mov_avg13 > mov_avg21 and low > mov_avg8;
+def stopbuy = mov_avg8 <= mov_avg13;
+def buynow = !buy[1] and buy;
+plot Buy_Signal = buynow and !stopBuy;
+Buy_signal.setpaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
+Buy_signal.setdefaultColor(color.dark_GREEN);
+Buy_signal.hidetitle();
+def sell = mov_avg8 < mov_avg13 and mov_avg13 < mov_avg21 and high < mov_avg8;
+def stopsell = mov_avg8 >= mov_avg13;
+def sellnow = !sell[1] and sell;
+Plot Sell_Signal = sellNow and !stopSell;
+Sell_signal.setpaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_down);
+sell_signal.setDefaultColor(color.red);
+Sell_signal.hidetitle();
