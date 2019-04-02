@@ -1,0 +1,23 @@
+#BollingerCloud
+
+input price = close;
+input displace = 0;
+input length = 20;
+input Num_Dev_Dn = -2.0;
+input Num_Dev_up = 2.0;
+
+def sDev = StDev(data = price[-displace], length = length);
+
+plot MidLine = ExpAverage(data = price[-displace], length = length);
+plot LowerBand = MidLine + Num_Dev_Dn * sDev;
+plot UpperBand = MidLine + Num_Dev_up * sDev;
+
+LowerBand.SetDefaultColor(Color.CYAN);
+LowerBand.SetLineWeight(2);
+MidLine.SetDefaultColor(Color.LIGHT_GRAY);
+UpperBand.SetDefaultColor(Color.CYAN);
+UpperBand.SetLineWeight(2);
+
+
+AddCloud(if price >= MidLine then UpperBand else LowerBand,  LowerBand,  Color.GREEN);
+AddCloud(if price <= MidLine then LowerBand else UpperBand,  UpperBand,  Color.RED);
