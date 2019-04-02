@@ -1,0 +1,61 @@
+#HINT: The Volume-Weighted Average Price (VWAP) is calculated where size x is the volume traded at price x.
+
+# The VWAP plot is accompanied with two bands serving as overbought and oversold levels. The Upper band (overbought level) is plotted a specified number of standard deviations above the VWAP, and the Lower band (oversold level) is plotted similarly below the VWAP. Standard deviations are based upon the difference between the price and VWAP.
+
+input numDevDn = -2.0;
+input numDevUp = 2.0;
+input timeFrame = {default DAY, WEEK, MONTH};
+input show_VWAP_label = yes;
+input VWAP_Label_Color_Choice = {default "magenta", "green", "pink", "cyan", "orange", "red", "blue", "gray", "violet"};
+input show_VWAP_bands_label = no;
+input Bands_Label_Color_Choice = {default "magenta", "green", "pink", "cyan", "orange", "red", "blue", "gray", "violet"};
+
+
+def cap = getAggregationPeriod();
+def errorInAggregation =
+    timeFrame == timeFrame.DAY and cap >= AggregationPeriod.WEEK or
+    timeFrame == timeFrame.WEEK and cap >= AggregationPeriod.MONTH;
+assert(!errorInAggregation, "timeFrame should be not less than current chart aggregation period");
+
+def yyyyMmDd = getYyyyMmDd();
+def periodIndx;
+switch (timeFrame) {
+case DAY:
+    periodIndx = yyyyMmDd;
+case WEEK:
+    periodIndx = Floor((daysFromDate(first(yyyyMmDd)) + getDayOfWeek(first(yyyyMmDd))) / 7);
+case MONTH:
+    periodIndx = roundDown(yyyyMmDd / 100, 0);
+}
+def isPeriodRolled = compoundValue(1, periodIndx != periodIndx[1], yes);
+
+def volumeSum;
+def volumeVwapSum;
+def volumeVwap2Sum;
+
+if (isPeriodRolled) {
+    volumeSum = volume;
+    volumeVwapSum = volume * vwap;
+    volumeVwap2Sum = volume * Sqr(vwap);
+} else {
+    volumeSum = compoundValue(1, volumeSum[1] + volume, volume);
+    volumeVwapSum = compoundValue(1, volumeVwapSum[1] + volume * vwap, volume * vwap);
+    volumeVwap2Sum = compoundValue(1, volumeVwap2Sum[1] + volume * Sqr(vwap), volume * Sqr(vwap));
+}
+def price = volumeVwapSum / volumeSum;
+def deviation = Sqrt(Max(volumeVwap2Sum / volumeSum - Sqr(price), 0));
+
+plot VWAP = price;
+VWAP.hide();
+plot UpperBand = price + numDevUp * deviation;
+UpperBand.hide();
+plot LowerBand = price + numDevDn * deviation;
+LowerBand.hide();
+
+VWAP.setDefaultColor(getColor(0));
+UpperBand.setDefaultColor(getColor(2));
+LowerBand.setDefaultColor(getColor(4));
+
+AddLabel(Show_VWAP_label, " VWAP = " + Round(VWAP, 2), GetColor(VWAP_Label_Color_Choice));
+AddLabel(Show_VWAP_bands_label, " VWAP Upper Band = " + round(UpperBand, 2) + " ... " + " VWAP Lower Band = " + round(LowerBand, 2), GetColor(Bands_Label_Color_Choice));
+
