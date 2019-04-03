@@ -1,0 +1,16 @@
+#HINT: chart labels for DAILY net and percent change, and DAILY volume regardless of whether on daily or intra-day chart.  Also, volume is color coded to denote whether today's daily volume is above or below average daily volume.
+
+input Volume_Avg_periods = 50;
+
+def aggregationPeriod = AggregationPeriod.DAY;
+def prevPrice = close(period = aggregationPeriod)[1];
+def price = close(period = aggregationPeriod);
+def priceChg = price - prevprice;
+def PctChg = (Price - prevprice) / prevPrice;
+
+addlabel(yes, "DailyNetChg:  " + priceChg + "   Daily%Chg: " + aspercent(PctChg),if priceChg > 0 then (createColor(51,204,0)) else if priceChg < 0 then color.RED else color.LIGHT_GRAY);
+
+
+def vol = volume(period = aggregationPeriod);
+def volAvg = average(volume(period = aggregationPeriod), Volume_Avg_periods);
+addlabel(yes, "DailyVolume: " + vol,if vol > volAvg then (createColor(51, 204, 0)) else if vol < volAvg then color.RED else color.LIGHT_GRAY);
