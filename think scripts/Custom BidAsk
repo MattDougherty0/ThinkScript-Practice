@@ -1,0 +1,9 @@
+plot bid = close(priceType = "BID");
+plot ask = close(priceType = "ASK");
+plot last = close;
+bid.SetDefaultColor(Color.CYAN);
+ask.SetDefaultColor(Color.LIME);
+assignPriceColor(if last > bid and last < ask then Color.black else Color.BLUE);
+last.SetPaintingStrategy(PaintingStrategy.POINTS);
+setchartType(charttype.LINE);
+HidePricePlot();
