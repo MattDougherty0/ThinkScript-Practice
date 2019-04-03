@@ -1,0 +1,38 @@
+#HINT: Horizontal Line at price that extends into right expansion area.  \n\nIncludes a bubble with price, net change, and percent change that is red and under when Net Change is negative or green and above when Net Change is positive \n.
+
+
+# input allows you to create fields for the Edit Studies box
+input price = close;
+input LineOnExpansion = yes;
+
+
+# ThinkScript counts all of the bars on a chart with bar to furthest left as bar 1.  You use barNumber function to count bars with #1 as the first bar when your condition triggered (such as how many bars since a new high).  The below three def lines are defining new "words" for ThinkScript that can help save time and typing by referring to those "words" later in the code, or in the case below to help simplify your thoughts by breaking them into separate lines of code.
+def bar = if IsNaN(price) 
+             then if LineOnExpansion
+                     then bar[1]
+                     else Double.NaN
+             else BarNumber();
+def ThisBar = HighestAll(bar);
+def barCount   = if bar == ThisBar 
+                 then price
+                 else Double.NaN;
+
+
+# plot tells ThinkScript what information you want on the chart and the next couple of lines tell ThinkScript how you want the information displayed.  The HorizontalLine information tells ThinkScript to draw the horzontal line from current bar at price type selected in the Edit Studies box, and the else Double.NaN tells ThinkScript to continue drawing it into expansion area on right side of the chart.
+plot HorizontalLine = if ThisBar <= bar
+           then HighestAll(barCount)
+           else Double.NaN;
+HorizontalLine.SetStyle(Curve.Long_Dash);
+HorizontalLine.SetDefaultColor(CreateColor(250,75,75));
+HorizontalLine.SetLineWeight(1);
+
+
+
+### if you do not want the chart bubble, either add # sign right before AddChartBubble, or delete all lines of code below this note
+
+# information below this line creates the chart bubble.  Chart bubble requires (1) condition that would trigger placing bubble on the chart at a specific point, (2) location of the bubble (can add and subtract to further refine location such as high + 4.00), (3) what words and/or data you want as text in the bubble, (4) color, and (5) yes if want bubble above or no if want bubble below
+def NetChg = close - close[1];
+def PrctChg = (NetChg / close[1]) * 100;
+
+AddChartBubble(bar == ThisBar, if NetChg > 0 then highest(high,5) else lowest(low,5), "Last: " + close + "\nNet Chg: " + NetChg +"\n% Chg: " + PrctChg + "%", if NetChg > 0 then color.UPTICK else color.RED, if NetChg > 0 then yes else no);
+
