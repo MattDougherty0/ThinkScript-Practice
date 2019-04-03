@@ -1,0 +1,19 @@
+#HINT: This indicator plots a label at top of the chart only for symbol VIX. \n\n  It counts the number of days in xx periods that VIX went above zz price.
+
+declare hide_on_intraday;
+
+input length = 252; #Hint length: There are 252 trading days per year. And 1260 for 5 years. \n\n Max number of days ThinkScript can calculate is 2000
+input price = 26;
+input Label_Color_Choice = {default "magenta", "green", "pink", "cyan", "orange", "red", "blue", "gray", "violet"};
+
+def day = AggregationPeriod.DAY;
+def x = if high(period = day) > price then 1 else 0;
+def updays = Sum(x, length);
+
+AddLabel(GetSymbol() == "VIX", "  number of times VIX over " + price + " in the past " + length + " trading days =  " + updays + "  ", GetColor(Label_Color_Choice));
+
+plot line = price;
+line.SetDefaultColor(GetColor(Label_Color_Choice));
+line.SetPaintingStrategy(PaintingStrategy.DASHES);
+line.Hide();
+
