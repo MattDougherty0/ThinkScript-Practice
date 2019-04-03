@@ -1,0 +1,80 @@
+#HINT: This study adds S3 to R3 cloud.  If priceActionIndicator 
+
+
+# from this point until the AddCloud line is simply a copy/paste of the CamarillaPoints study.  AddCloud line and below were added to create (1) shaded cloud between S3 and R3, (2) audible alert if price is outside that range then re-enters the range, and (3) visible alert label that appears at time price re-enters the range
+
+input aggregationPeriod = {default "DAY", "WEEK", "MONTH"};
+input length = 25;
+
+Assert(length > 0, "'length' should be positive: " + length);
+
+def yyyymmdd = GetYYYYMMDD();
+def month = GetYear() * 12 + GetMonth();
+def day_number = DaysFromDate(First(yyyymmdd)) + GetDayOfWeek(First(yyyymmdd));
+def period;
+switch (aggregationPeriod) {
+case DAY:
+    period = CountTradingDays(Min(First(yyyymmdd), yyyymmdd), yyyymmdd) - 1;
+case WEEK:
+    period = Floor(day_number / 7);
+case MONTH:
+    period = Floor(month - First(month));
+}
+def count = CompoundValue(1, if period != period[1] then (count[1] + period - period[1]) % length else count[1], 0);
+def start =  CompoundValue(1, count < count[1] + period - period[1], yes);
+def highValue = if start then Highest(high(period = aggregationPeriod), length)[1] else if highValue[1] != 0 then highValue[1] else Double.NaN;
+def lowValue = if start then Lowest(low(period = aggregationPeriod), length)[1] else if lowValue[1] != 0 then lowValue[1] else Double.NaN;
+def closeValue = if start then close(period = aggregationPeriod)[1] else closeValue[1];
+def range = highValue - lowValue;
+
+plot R5 = (highValue / lowValue) * closeValue;
+plot R4 = closeValue + range * (1.1) / 2;
+plot R3 = closeValue + range * (1.1) / 4;
+plot R2 = closeValue + range * (1.1) / 6;
+plot R1 = closeValue + range * (1.1) / 12;
+plot S1 = closeValue - range * (1.1) / 12;
+plot S2 = closeValue - range * (1.1) / 6;
+plot S3 = closeValue - range * (1.1) / 4;
+plot S4 = closeValue - range * (1.1) / 2;
+plot S5 = (closeValue - (R5 - closeValue));
+
+R1.Hide();
+S1.Hide();
+
+R5.SetDefaultColor(GetColor(5));
+R4.SetDefaultColor(GetColor(5));
+R3.SetDefaultColor(GetColor(5));
+R2.SetDefaultColor(GetColor(5));
+R1.SetDefaultColor(GetColor(5));
+S1.SetDefaultColor(GetColor(6));
+S2.SetDefaultColor(GetColor(6));
+S3.SetDefaultColor(GetColor(6));
+S4.SetDefaultColor(GetColor(6));
+S5.SetDefaultColor(GetColor(6));
+
+def paintingStrategy = if aggregationPeriod == aggregationPeriod.DAY then PaintingStrategy.POINTS else if aggregationPeriod == aggregationPeriod.WEEK then PaintingStrategy.TRIANGLES else PaintingStrategy.SQUARES;
+
+R5.SetPaintingStrategy(paintingStrategy);
+R4.SetPaintingStrategy(paintingStrategy);
+R3.SetPaintingStrategy(paintingStrategy);
+R2.SetPaintingStrategy(paintingStrategy);
+R1.SetPaintingStrategy(paintingStrategy);
+S1.SetPaintingStrategy(paintingStrategy);
+S2.SetPaintingStrategy(paintingStrategy);
+S3.SetPaintingStrategy(paintingStrategy);
+S4.SetPaintingStrategy(paintingStrategy);
+S5.SetPaintingStrategy(paintingStrategy);
+
+
+
+#AddCloud shades area between two locations. First color appears when location or condition 1 is higher than the second location or condition.  Use same color twice if want cloud all the time.
+AddCloud(S4, R4,  Color.YELLOW,  Color.YELLOW);
+
+def crossBackUPintoRange = close[1] < S4[1] and close > S4;
+def crossBackDOWNintoRange = close[1] > R4[1] and close < R4;
+
+#Alert creates an audible alert and a note in the Messages center when the alert condition triggers
+Alert(crossBackUPintoRange or crossBackDOWNintoRange, "Price re-entered S3 to R3 range", Alert.BAR, Sound.Ring);
+
+#AddLabel set to a condition will cause the label to ONLY appear when the condition is true, making it a visual alert at time price re-enters S3 to R3 range
+AddLabel(crossBackUPintoRange or crossBackDOWNintoRange, "Price re-entered S3 to R3 range", Color.MAGENTA);
