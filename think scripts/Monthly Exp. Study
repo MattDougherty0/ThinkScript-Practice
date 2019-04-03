@@ -1,0 +1,43 @@
+#HINT: This chart label denotes the 4 index settlement symbols. \n\n If on a chart of one of the index settlement symbols then an additional label appears with settlement vs. prior day's close
+
+
+input show_label = yes;
+input Label_Color_Choice = {"magenta", "green", "pink", "cyan", "orange", "red", default "blue", "gray", "violet"};
+
+def A = if GetSymbol() == "SET" then yes else no;
+def B = if GetSymbol() == "NDS" then yes else no;
+def C = if GetSymbol() == "DJS" then yes else no;
+def D = if GetSymbol() == "RSL" then yes else no;
+
+def E = A or B or C or D;
+
+def entryprice;
+if GetSymbol() == "SET"
+then {
+    entryprice = close("SPX")[1];
+}
+else if GetSymbol() == "NDS"
+then {
+    entryprice = close("NDX")[1];
+}
+else if GetSymbol() == "DJS"
+then {
+    entryprice = close("DJX")[1];
+}
+else if GetSymbol() == "RSL"
+then {
+    entryprice = close("RUT")[1];
+}
+else {
+    entryprice = 0;
+}
+
+
+    def netchange = (close - entryprice);
+    def pctChange = ((close - entryprice) / entryprice);
+
+AddLabel(show_label, "Index settlement symbols are SET, NDS, DJS, or RSL ... open those charts on expiration Friday to view settlement vs. prior day's close", GetColor(Label_Color_Choice));
+
+AddLabel(show_label and E, "Expiration Settlement ... Net Change and % change from prior day's close: " + AsDollars(netchange)  + "   "  + AsPercent(pctChange), if netChange > 0 then (CreateColor(51, 204, 0)) else Color.RED);
+
+
