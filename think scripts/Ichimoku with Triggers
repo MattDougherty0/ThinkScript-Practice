@@ -1,0 +1,47 @@
+#HINT: The Ichimoku study is used to forecast price action. It comprises five plots, two of which, Senkou Span A and Senkou Span B, are prolonged 26 bars forward by default, thus showing expected trend behavior. Three other plots, Tenkan, Kijun, and Chikou, are used as signal, confirmation, and support/resistance aid lines.  \n\n*** The Tenkan line represents the arithmetic mean of the highest High and the lowest Low over a specified time period (9 bars by default). The Kijun line is calculated similarly using the 26 bars period by default. The Chikou line represents the current Close price plot projected 26 bars back by default.  \n\n*** Once the primary lines are plotted, the study calculates the Senkou spans. The Senkou Span A is calculated as the arithmetic mean of the Tenkan and the Kijun. This line is plotted 26 bars ahead. The Senkou Span B is calculated as the arithmetic mean of the highest High and the lowest Low over 52 bars and is plotted 26 bars ahead. \n\n*** Then the space between the two lines, so-called Kumo, is colored in respect to the defined trend. The trend is defined as bullish at the Kumo section where Senkou Span B line is below the Span A line and this section is colored green by default. Conversely, if the Senkou Span B line surpasses the Span A line, it is considered a bearish sign and the section is colored red by default.
+
+#HINT tenkan_period: also called the conversion line
+#HINT kijun_period: also called the base line.
+
+input tenkan_period = 9;
+input kijun_period = 26;
+
+plot Tenkan = (Highest(high, tenkan_period) + Lowest(low, tenkan_period)) / 2;
+plot Kijun = (Highest(high, kijun_period) + Lowest(low, kijun_period)) / 2;
+plot "Span A" = (Tenkan[kijun_period] + Kijun[kijun_period]) / 2;
+plot "Span B" = (Highest(high[kijun_period], 2 * kijun_period) + Lowest(low[kijun_period], 2 * kijun_period)) / 2;
+plot Chikou = close[-kijun_period];
+
+Tenkan.SetDefaultColor(Color.ORANGE);
+Kijun.SetDefaultColor(Color.BLUE);
+"Span A".SetDefaultColor(Color.GREEN);
+"Span B".SetDefaultColor(Color.RED);
+Chikou.SetDefaultColor(Color.LIGHT_GRAY);
+
+DefineGlobalColor("Bullish", Color.GREEN);
+DefineGlobalColor("Bearish", Color.RED);
+AddCloud("Span A", "Span B", globalColor("Bullish"), globalColor("Bearish"));
+
+def Long = close > "Span B" AND "Span A" > "Span B";
+def Short = close < "Span A" AND "Span A" < "Span B";
+
+def crossUpper = (close crosses above Kijun) OR (Tenkan crosses above Kijun);
+def crossLower = (close crosses below Kijun) OR (Tenkan crosses below Kijun);
+
+plot Bull_trading_signal = Long is true and crossUpper is true;
+Bull_trading_signal.setDefaultColor(color.BLUE);
+Bull_trading_signal.setPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
+Bull_trading_signal.setLineWeight(5);
+
+plot Bear_trading_signal = Short is true and crossLower is true;
+Bear_trading_signal.setDefaultColor(color.ORANGE);
+Bear_trading_signal.setPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
+Bear_trading_signal.setLineWeight(5);
+
+
+alert(Bull_trading_signal or Bear_trading_signal, if Bull_trading_signal then "Bullish Signal" 
+else "Bearish Signal", alert.BAR, sound.RING);
+
+AddLabel(if Bull_trading_signal is true then yes else no, "Bullish Ichimoku signal", CreateColor(51, 204, 0));
+AddLabel(if Bear_trading_signal is true then yes else no, "Bearish Ichimoku signal", color.RED);
+
