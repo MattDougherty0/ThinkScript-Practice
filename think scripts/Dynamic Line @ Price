@@ -1,0 +1,24 @@
+# Dynamic_Line
+#HINT: This study plots a horizontal line that dynamically changes location with the price input chosen in Edit Studies box.
+
+Input price = close;
+Input LineLimit = 60;
+Input LineOnExpansion = yes;
+
+   def bar = if IsNaN(price) 
+             then Double.NaN 
+             else BarNumber();
+   def ThisBar = HighestAll(bar);
+   def HorizontalLine   = if bar == ThisBar 
+                 then price
+                 else Double.NaN;
+
+  plot DynamicLine = if ThisBar - LineLimit <= bar
+           then HighestAll(HorizontalLine)
+           else Double.Nan;
+       DynamicLine.SetStyle(Curve.Firm);
+       DynamicLine.SetLineWeight(2);
+       DynamicLine.SetdefaultColor(Color.BLUE);
+
+
+# End study ------------------------------
