@@ -1,0 +1,21 @@
+#HINT: This code can be customized to show Sector symbol and Industry Group symbol for as many symbols as desired, by using copy/paste/tweak of AddLabel line to add more symbol labels.  \n\nEach new AddLabel will need 3 changes (1) stock symbol, (2) symbol for that stock's sector, and (3) symbol for that stock's Industry Group. \n\n NOTE: There will be NO label if chart is opened for a symbol that does not have an AddLabel line in this code.
+
+
+# no def lines are in this code because no need to teach ThinkScript new "words" for ability to save time and typing by referencing the new "words" later in the code
+
+# no plot is needed in this code because by asking ThinkScript to diplay a label you are telling ThinkScript what information you want to appear on the chart, and also how you want that information to appear
+
+# AddLabel requires 
+#(1) yes for always visible or a condition for which the label would be visible.  In this case if the symbol for chart you have open matches symbol in the AddLabel line then that label will be visible.  If symbol for chart you have open does not match symbol in the Add Symbol line then the label will not appear.
+#(2) the words in quotes and/or the data you want to see in the label.  NOTE: to have both words and data or multiple texts, use a + sign between each.  In the below AddLabel codes there are 3 sets of text with + signs between them.  The middle section of text is quotation marks with blank space to create blank space between the sector and industry group symbols.
+#(3) desired color for your labels
+#(4) as with any line in ThinkScript code, you need to 'end the sentence' or line of code with a semicolon
+
+
+#### REMINDER: if you open chart of a symbol that does not have an AddLabel line in this code, there will be NO sector/ind group label on the chart.
+
+AddLabel(GetSymbol() == "AAPL", "Sector Symbol: $SP500#45" + "     " + "Ind Group Symbol: $SP500#452020" , color.BLUE);
+
+AddLabel(GetSymbol() == "CAT", "Sector Symbol: $SP500#20" + "     " + "Ind Group Symbol: $SP500#21060" , color.BLUE);
+
+AddLabel(GetSymbol() == "JPM", "Sector Symbol: $SP500#40" + "     " + "Ind Group Symbol: $SP500#401010" , color.BLUE);
