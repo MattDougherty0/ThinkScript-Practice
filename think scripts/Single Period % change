@@ -1,0 +1,21 @@
+declare lower;
+
+input length = 1;
+
+input price = close;
+
+assert(length > 0, "'length' must be positive: " + length);
+
+plot Diff = 100 * (price / price[length] - 1);
+
+plot ZeroLine = 0;
+
+Diff.SetDefaultColor(GetColor(5));
+Diff.SetPaintingStrategy(PaintingStrategy.HISTOGRAM);
+Diff.SetLineWeight(3);
+Diff.DefineColor("Positive and Up", Color.GREEN);
+Diff.DefineColor("Positive and Down", Color.DARK_GREEN);
+Diff.DefineColor("Negative and Down", Color.RED);
+Diff.DefineColor("Negative and Up", Color.DARK_RED);
+Diff.AssignValueColor(if Diff >= 0 then if Diff > Diff[1] then Diff.color("Positive and Up") else Diff.color("Positive and Down") else if Diff < Diff[1] then Diff.color("Negative and Down") else Diff.color("Negative and Up"));
+ZeroLine.SetDefaultColor(GetColor(0));
