@@ -1,0 +1,65 @@
+##Stochastic Full with Breakout 
+#hint Stochastic Full: Stochastic Oscillator is based on the observation that as prices increase, closing prices tend to be closer to the upper end of the price range. In downtrends, the closing price tends to be near the lower end of the range. </b> Stochastic Oscilla-tor is made up of two lines oscillating in the range from 0 to 100. The %K (showing the ratio of differences between current close and lowest price and between highest and lowest prices) is the main line. The second is the %D line being a moving average of %K over a chosen period. 
+#hint: <b>Stochastic Oscillator With Breakout Signals</b>\nIdentifies when the Stochastic Oscillator has crossed above the over-bought or below the undersold level. 
+#hint KPeriod: Number of bars to be used to calculate the Stochastic Oscillator <b>(Default is 10)</b> 
+#hint DPeriod: Number of bars used to calculate the FullD. <b>(Default is 10)</b> 
+#hint slowing_Period: The number of bars used to calculate the slow moving average. <b>(Default is 3) 
+#wizard input: Dperiod 
+#wizard text: Inputs: Dperiod: 
+#wizard input: Slowing_Period 
+#wizard text: Inputs: Slowing_Period: 
+declare lower;
+input Show_FullK = YES;
+input Show_FullD = NO;
+input over_bought = 80;
+input over_sold = 20;
+input KPeriod = 10;
+input DPeriod = 10;
+input priceH = high;
+input priceL = low;
+input priceC = close;
+input slowing_period = 3;
+input smoothingType = {default SMA, EMA};
+def lowest_k = Lowest(priceL, KPeriod);
+def c1 = priceC - lowest_k;
+def c2 = Highest(priceH, KPeriod) - lowest_k;
+def FastK = if c2 != 0 then c1 / c2 * 100 else 0;
+
+def FullK;
+def FullD;
+switch (smoothingType) {
+case SMA:
+    FullK = Average(FastK, slowing_period);
+    FullD = Average(FullK, DPeriod);
+case EMA:
+    FullK = ExpAverage(FastK, slowing_period);
+    FullD = ExpAverage(FullK, DPeriod);
+}
+plot FullKPlot = if Show_FullK == yes then FullK else Double.NaN;
+plot FullDPlot = if Show_FullD == yes then FullD else Double.NaN;
+plot OverBought = over_bought;
+plot OverSold = over_sold;
+def signal1 = (Crosses(FullK, OverBought, CrossingDirection.BELOW));
+plot Signal = if signal1 >= 1 then (signal1 * over_bought) else Double.NaN;
+Signal.DefineColor("OverBought", GetColor(1));
+Signal.SetPaintingStrategy(PaintingStrategy.ARROW_DOWN);
+Signal.SetLineWeight(2);
+Signal.HideTitle();
+def signal2 = (Crosses(FullK, over_sold, CrossingDirection.ABOVE));
+plot signal_ = if signal2 >= 1 then (signal2 * over_sold) else Double.NaN;
+signal_.DefineColor("OverBought", GetColor(1));
+signal_.SetPaintingStrategy(PaintingStrategy.ARROW_UP);
+signal_.SetLineWeight(3);
+signal_.HideTitle();
+AddCloud(FullK, OverBought, Color.GREEN, Color.CURRENT);
+AddCloud(OverSold, FullK, Color.RED, Color.CURRENT);
+FullKPlot.SetLineWeight(1);
+FullKPlot.DefineColor("Overbought", Color.GREEN);
+FullKPlot.DefineColor("Oversold", Color.RED);
+FullKPlot.DefineColor("Normal", Color.LIGHT_GREEN);
+FullKPlot.AssignValueColor(if FullK >= OverBought then FullKPlot.Color("Overbought") else if FullK < OverBought and FullK > OverSold then FullKPlot.Color("Normal") else if FullK <= OverSold then FullKPlot.Color("Oversold") else Color.CURRENT);
+FullDPlot.SetLineWeight(1);
+FullDPlot.DefineColor("Overbought", Color.GREEN);
+FullDPlot.DefineColor("Oversold", Color.RED);
+FullDPlot.DefineColor("Normal", Color.CYAN);
+FullDPlot.AssignValueColor(if FullD > OverBought then FullDPlot.Color("Overbought") else if FullD < OverBought and FullD > OverSold then FullDPlot.Color("Normal") else if FullD < OverSold then FullDPlot.Color("Oversold") else Color.CURRENT);
