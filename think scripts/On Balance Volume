@@ -1,0 +1,14 @@
+#HINT: This study is OBV OnBalanceVolume with the addition of a horizontal line at the zero level
+
+# if you always want study to appear below the chart use declare lower;  ... or if you always want the study to appear on the chart use declare upper;
+declare lower;
+
+# plot tells ThinkScript what data you want to appear on the chart and the lines below that tell ThinkScript how you want the data to appear
+# GetColor is based on the 9 colors in the edit colors boxes - top left is 0, top right is 2, middle of the 9 colored squares is 4, bottom left is 8, bottom right is 8, etc.
+plot OBV = TotalSum(Sign(close - close[1]) * volume);
+OBV.SetDefaultColor(GetColor(8));
+OBV.SetLineWeight(1);
+
+plot zeroLine = 0;
+zeroLine.SetDefaultColor(color.RED);
+zeroLine.SetLineWeight(1);
