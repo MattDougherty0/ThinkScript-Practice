@@ -1,0 +1,16 @@
+#HINT: This study allows you to have a horizontal line on the ImpVolatility study. \n\n Square root of 252 trading days/year is approximately 16.  Therefore, ImpVolatility of 16 indicates a 1-day expected move of 1% (and IV of 32 indicates 1-day expected move of 2% etc.)
+
+declare lower;
+declare hide_on_intraday;
+
+input horizontal_line = 0.16; #HINT horizontal_line: Square root of 252 trading days/year is approximately 16. \n Therefore, ImpVolatility of 16 indicates a 1-day expected move of 1% (and IV of 32 indicates 1-day expected move of 2% etc.)
+input show_label = yes;
+input Label_Color_Choice = {"magenta", "green", "pink", "cyan", "orange", "red", default "blue", "gray", "violet"};
+
+plot ImpVol = IMP_VOLATILITY();
+
+plot line = horizontal_line;
+line.SetDefaultColor(GetColor(Label_Color_Choice));
+line.SetLineWeight(2);
+
+AddLabel(show_label, "REMINDER: IV of 16 indicates expected 1-day move of 1%", GetColor(Label_Color_Choice));
