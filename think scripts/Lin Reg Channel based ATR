@@ -1,0 +1,26 @@
+# BiermanLinRegATR - IMPORTANT - if you want to reference this study as part of custom scan filter, give your new chart study this name
+
+#HINT: this script is a chart study that creates a custom channel that fluctuates based on changes in ATR 
+
+input price = close;
+input ATRLength = 14;
+input NumATR = 1.5;
+input fullRange = Yes;
+input length = 21;
+
+plot middleLR;
+if (fullRange) {
+    middleLR = InertiaAll(price);
+
+} else {
+    middleLR = InertiaAll(price, length);
+
+}
+
+def dist = reference ATR(length = ATRLength, averageType = AverageType.SIMPLE) * NumATR;
+plot UpperLR = middleLR + dist;
+plot LowerLR = middleLR - dist;
+
+middleLR.SetDefaultColor(GetColor(1));
+UpperLR.SetDefaultColor(GetColor(1));
+LowerLR.SetDefaultColor(GetColor(1));
