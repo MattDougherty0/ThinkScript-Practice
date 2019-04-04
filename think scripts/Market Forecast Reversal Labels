@@ -1,0 +1,28 @@
+declare lower;
+
+input OverBought = 80;
+input OverSold = 20;
+
+plot Momentum = marketForecast();
+Momentum.setDefaultColor(color.RED);
+AddLabel(yes, "Momentum: " + AsText(Momentum, NumberFormat.TWO_DECIMAL_PLACES), color.RED);
+
+plot NearTerm = MarketForecast().NearTerm;
+NearTerm.setDefaultColor(color.BLUE);
+AddLabel(yes, "Near Term: " + AsText(NearTerm, NumberFormat.TWO_DECIMAL_PLACES), color.BLUE);
+
+plot IntTerm = MarketForecast().Intermediate;
+IntTerm.setDefaultColor(createColor(51, 204, 0));
+AddLabel(yes, "Intermediate Term: " + AsText(IntTerm, NumberFormat.TWO_DECIMAL_PLACES),(createColor(51,204,0)));
+
+
+plot OB_line = OverBought;
+OB_line.setdefaultColor(color.RED);
+OB_line.setLineWeight(2);
+
+plot OS_line = OverSold;
+OS_line.setdefaultColor(color.GREEN);
+OS_line.setLineWeight(2);
+
+AddCloud(0, OS_line, color.green, Color.green);
+AddCloud(100, OB_line, color.RED, color.red);
