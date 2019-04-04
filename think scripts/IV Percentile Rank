@@ -1,0 +1,60 @@
+#HINT: IV percentile RANK is an indicator that compares current IV to the high-low IV range over a specific number of weeks.  \n\nIV percentile denotes whether option prices are currently high/low relative to the high/low range for ImpVolatility and therefore IV percentile rank can be used as a strategy selection tool.  \n\nFor example, select negative Vega strategies when IV percentile rank is high [red label], select positive Vega strategies when IV percentile rank is low [green label], select small positive or negative Vega strategies when IV percentile rank is neutral [light gray label].  \n.
+
+
+declare lower;
+
+input NumberOfWeeks = 52; #HINT NumberOfWeeks: 52= 1-year; 39= 9-months; 26= 6-months; 13= 3-months 
+
+def IV = if !IsNaN(imp_volatility(period = AggregationPeriod.DAY))
+         then imp_volatility(period = AggregationPeriod.DAY)
+         else IV[1];
+
+plot IV_line = IV;
+IV_line.SetDefaultColor(color.BLUE);
+IV_line.SetLineWeight(2);
+
+def timePeriod = NumberOfWeeks * 4.85; #NOTE: 4.85 is used instead of 5 to account for market holiday weeks
+def hi = Highest(IV, timePeriod);
+def lo = Lowest(IV, timePeriod);
+def perct = (IV - lo) / (hi - lo);
+
+AddLabel(yes, "52wk highest IV:  " + Round(hi, 3) + " ... " + "52wk lowest IV:  " + Round(lo, 3), color.BLUE); 
+
+
+AddLabel(yes, NumberOfWeeks + "-week IV Percentile Rank:  " + AsPercent(perct), if perct > 0.80
+     then Color.RED
+     else if perct < 0.40
+     then (CreateColor(51, 204, 0))
+     else Color.LIGHT_GRAY);
+ 
+# end code -------------
+
+
+# HINT: This IV percentile is NOT a 0 - 100 rank of where current IV is located within the 52-week high/low range for ImpVolatility.  Instead this IV percentile compares 52-weeks of ImpVolatility data to determine where current IV is located relative to "normal" ImpVolatility.
+# Many times IV percentile rank will be same or similar to IV percentile, however, if there has been a spike high or spike low in the ImpVolatility high/low range that spike(s) can skew IV percentile rank causing current IV to appear lower or higher than actual realtive to "normal" IV
+
+
+def TradingDays = if NumberOfWeeks == 52 then 252 else if NumberOfWeeks == 39 then 189 else if NumberOfWeeks == 26 then 126 else 63;
+
+def IVperc = fold i = 0 to TradingDays
+             with p = 0
+             do if IV < GetValue(IV , -i, TradingDays) 
+                then IVperc[1] + 1 
+                else IVperc[1];
+
+def normal_IV =  fold j = 0 to TradingDays
+               with q = 0
+               do if 1 == 1
+                then normal_IV[1] + 1 
+                else normal_IV[1];
+
+def IVpercentile = (IVperc / (TradingDays + 1));
+
+AddLabel(yes, NumberOfWeeks + "-week IV Percentile " + AsPercent(IVpercentile) + "  ... NEED to be on 1-year Daily chart ", if IVpercentile > 0.80
+     then Color.RED
+     else if IVpercentile < 0.40
+     then (CreateColor(51, 204, 0))
+     else Color.LIGHT_GRAY);
+
+
+
