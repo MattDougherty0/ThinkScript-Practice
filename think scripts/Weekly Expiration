@@ -1,0 +1,13 @@
+#HINT: This study plots vertical lines at weekly expiration (every Friday).
+
+declare hide_on_intraday;
+
+input day_of_week = {default Friday};
+input Label_Color_Choice = {"magenta", "green", "pink", "cyan", "orange", default "red", "blue", "gray", "violet"};
+
+def CurrentYear = GetYear();
+def CurrentMonth = GetMonth();
+def CurrentDOM = GetDayOfMonth(GetYYYYMMDD());
+
+
+AddVerticalLine(GetDayofWeek(GetYYYYMMDD()) == day_of_week + 1, CurrentMonth + "/" + CurrentDOM + "/" + CurrentYear, GetColor(Label_Color_Choice), Curve.LONG_DASH);
