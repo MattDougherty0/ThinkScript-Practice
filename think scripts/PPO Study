@@ -1,0 +1,45 @@
+#
+# TD Ameritrade IP Company, Inc. (c) 2007-2016
+#
+## created by North Vanhooser
+
+declare lower;
+
+input fastPeriod   = 12;
+input slowPeriod   = 26;
+input signalPeriod = 9;
+input price        = close;
+
+def fastEma   = ExpAverage( price, fastPeriod );
+def slowEma   = ExpAverage( price, slowPeriod );
+def periodOK  = fastPeriod < slowPeriod;
+AddLabel( !periodOK, "ERROR: fastPeriod MUST be less than slowPeriod" );
+def _ppo      = if periodOK then ((fastEma - slowEma) / slowEma) * 100 else 0;
+def _signal   = ExpAverage( _ppo, signalPeriod );
+
+plot Ppo      = _ppo;
+Ppo.SetDefaultColor( Color.BLUE );
+Ppo.HideBubble();
+
+plot PpoEma   = _signal;
+PpoEma.SetDefaultColor( Color.CYAN );
+PpoEma.HideBubble();
+
+plot zeroLine = 0;
+zeroLine.HideBubble();
+zeroLine.AssignValueColor( Color.BLACK );
+
+plot PpoH1    = _ppo - _signal;
+PpoH1.SetPaintingStrategy( PaintingStrategy.HISTOGRAM );
+PpoH1.DefineColor("Up", Color.UPTICK);
+PpoH1.DefineColor("Down", Color.DOWNTICK);
+PpoH1.DefineColor("Flat", Color.GRAY);
+PpoH1.AssignValueColor( if PpoH1 > PpoH1[1] then
+                           PpoH1.Color("Up")
+                       else
+                         if PpoH1 < PpoH1[1] then
+                           PpoH1.Color("Down")
+                       else
+                           PpoH1.Color("Flat"));
+PpoH1.HideBubble();
+PpoH1.SetLineWeight( 3 );
