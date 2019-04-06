@@ -1,0 +1,9 @@
+input tradeSize = 5;
+
+def signal = RSI()."RSI" is less than 35 and MACD()."Value" is less than -3 within 15 bars;
+
+addOrder(OrderType.BUY_TO_OPEN, signal, open[-1], tradeSize, Color.CYAN, Color.CYAN);
+
+def exit = RSI()."RSI" is greater than 60 and MACD()."Value" is greater than 3 within 15 bars;
+
+addOrder(OrderType.BUY_TO_CLOSE, exit, open[-1], tradeSize, Color.MAGENTA, Color.MAGENTA);
