@@ -1,0 +1,41 @@
+## INPUTS
+input tradesize = 25;
+input price = close;
+input averageType = AverageType.SIMPLE;
+input percentGainGoal = 1.5;
+input percentLossGoal = 0.5;
+input avgLength = 20; #length of movingAverage
+
+# DEFINE
+
+def movingAverage = MovingAverage(averageType, price, avgLength);
+
+def percentChange = 100 * (close - EntryPrice()) / EntryPrice ();
+
+# ORDERS
+
+def buySignal = close > movingAverage;
+def exitGood = percentChange > percentGainGoal;
+def exitCross = (close < movingAverage);
+def exitBad = percentChange > percentLossGoal;
+
+# SELL
+AddOrder(OrderType.BUY_TO_OPEN, buySignal, open[-1], tradesize, Color.CYAN, Color.CYAN);
+
+AddOrder(OrderType.SELL_TO_CLOSE, exitGood, open[-1], tradesize, Color.GREEN, Color.GREEN);
+
+
+AddOrder(OrderType.SELL_TO_CLOSE, exitBad, open[-1], tradesize, Color.RED, Color.RED);
+
+AddOrder(OrderType.SELL_TO_CLOSE, exitCross, open[-1], tradesize, Color.MAGENTA, Color.MAGENTA);
+
+# PLOTS 
+plot movingAvgPlot = MovingAverage(averageType, price, avgLength);
+
+#ALERTS
+Alert(buySignal, "SMA_PRICE_CROSS");
+
+
+
+
+# PLOTS 
